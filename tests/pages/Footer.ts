@@ -1,6 +1,6 @@
 import { Page } from '@playwright/test';
 
-export class Header {
+export class Footer {
   readonly page: Page;
 
   constructor(page: Page) {
