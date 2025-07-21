@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { chromium } from "playwright";
-import net from "net";
+import net from "node:net";
 import { HomePage } from "../pages/HomePage";
 
 async function getFreePort(): Promise<number> {
