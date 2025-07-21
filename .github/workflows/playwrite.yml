@@ -10,33 +10,42 @@ jobs:
   test-chromium:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
       - name: Install dependencies
         run: npm ci
-      - name: Install browsers
+
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Run tests (chromium)
-        run: npx playwright test --project=chromium
+
+      - name: Run Chromium tests with debug logs
+        run: DEBUG=pw:api npx playwright test --project=chromium
+
   test-other-browsers:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         browser: [firefox, webkit]
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
       - name: Install dependencies
         run: npm ci
-      - name: Install browsers
+
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Run tests for ${{ matrix.browser }}
-        run: npx playwright test --project=${{ matrix.browser }} --grep-invert @lighthouse
+
+      - name: Run tests for ${{ matrix.browser }} with debug logs
+        run: DEBUG=pw:api npx playwright test --project=${{ matrix.browser }}
