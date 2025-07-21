@@ -1,22 +1,16 @@
 import { expect, test } from "@playwright/test";
-import { playAudit } from "playwright-lighthouse";
 import { chromium } from "playwright";
 import net from "net";
 import { HomePage } from "../pages/HomePage";
 
 async function getFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {
-    const server = net.createServer();
-    server.listen(0, () => {
-      const address = server.address();
-      if (address && typeof address !== "string") {
-        const port = address.port;
-        server.close(() => resolve(port)); // <-- Here it knows `port` is a number
-      } else {
-        server.close(() => reject(new Error("Could not get free port")));
-      }
-    });
-    server.on("error", reject);
+    const srv = net.createServer();
+    srv.listen(0, () => {
+      // @ts-ignore – Node gives a number or string; cast is fine here
+      const { port } = srv.address() as net.AddressInfo;
+      srv.close(() => resolve(port));
+    }).on('error', reject);
   });
 }
 
@@ -38,6 +32,7 @@ test("Lighthouse performance score ≥ 60 (Chromium only)", async ({
   browserName,
 }) => {
   test.skip(browserName !== "chromium", "Lighthouse audit requires Chromium");
+  const { playAudit } = await import('playwright-lighthouse'); 
   const port = await getFreePort();
 
   const browser = await chromium.launch({
