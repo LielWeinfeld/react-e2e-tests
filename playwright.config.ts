@@ -1,23 +1,33 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
 /**
- * Playwright configuration for testing https://react.dev/
+ * Playwright configuration for end-to-end tests
+ * targeting https://react.dev/.
  */
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
+  workers: process.env.CI ? 1 : undefined,          
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  retries: process.env.CI ? 2 : 0,                  
+
+  timeout: 30_000,          // per test
+  expect: { timeout: 5_000 },
+
+  reporter: [
+    ["list"],                                        // CLI output
+    ["html", { open: "never", outputFolder: "playwright-report" }],
+  ],
+
   use: {
     baseURL: "https://react.dev/",
-    trace: "retain-on-failure", 
-    screenshot: "only-on-failure",
+    actionTimeout: 10_000,
+    navigationTimeout: 30_000,
+
+    trace: "retain-on-failure",                   
     video: "retain-on-failure",
-    actionTimeout: 10_000, 
-    navigationTimeout: 30_000, 
   },
+
   projects: [
     {
       name: "chromium",
@@ -32,4 +42,4 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },
   ],
-});
+} satisfies PlaywrightTestConfig);

@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Playwright CI
 
 on:
   push:
@@ -6,40 +6,28 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test-chromium:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Run Chromium tests with debug logs
-        run: DEBUG=pw:api npx playwright test --project=chromium
-
-  test-other-browsers:
-    runs-on: ubuntu-latest
+  tests:
     strategy:
+      fail-fast: false # let all browsers run even if one fails
       matrix:
-        browser: [firefox, webkit]
+        browser: [chromium, firefox, webkit]
+
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js with dependency caching
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: npm # caches ~/.npm
 
       - name: Install dependencies
         run: npm ci
@@ -47,5 +35,16 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Run tests for ${{ matrix.browser }} with debug logs
-        run: DEBUG=pw:api npx playwright test --project=${{ matrix.browser }}
+      - name: Run Playwright tests – ${{ matrix.browser }}
+        env:
+          PW_TEST_DEBUG: "pw:api"
+        run: |
+          npx playwright test --project=${{ matrix.browser }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report
+          retention-days: 7
