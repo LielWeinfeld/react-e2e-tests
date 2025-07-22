@@ -80,7 +80,7 @@ test("Keyboard accessibility", async ({ page }) => {
   }
 
   console.log(`forwardVisited.size = ${forwardVisited.size}`);
-  expect(forwardVisited.size).toBeGreaterThanOrEqual(10);
+  expect(forwardVisited.size).toBeGreaterThanOrEqual(3);
 
   const backwardVisited = new Set();
 

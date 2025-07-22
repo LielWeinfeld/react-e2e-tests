@@ -5,70 +5,64 @@ import { HomePage } from "../pages/HomePage";
 
 async function getFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {
-    const srv = net.createServer();
-    srv.listen(0, () => {
-      // @ts-ignore – Node gives a number or string; cast is fine here
-      const { port } = srv.address() as net.AddressInfo;
-      srv.close(() => resolve(port));
-    }).on('error', reject);
+    const server = net.createServer();
+    server
+      .listen(0, () => {
+        const { port } = server.address() as net.AddressInfo;
+        server.close(() => resolve(port));
+      })
+      .on("error", reject);
   });
 }
-
-/* SEO meta description test */
 
 test("Home page should have correct SEO tags", async ({ page }) => {
   const homePage = new HomePage(page);
   await homePage.goto();
 
-  const title = await homePage.getTitle();
-  expect(title).toBe(homePage.expectedTitle);
-
-  const description = await homePage.getMetaDescriptionContent();
-  expect(description).toBe(homePage.expectedDescription);
+  expect(await homePage.getTitle()).toBe(homePage.expectedTitle);
+  expect(await homePage.getMetaDescriptionContent()).toBe(
+    homePage.expectedDescription
+  );
 });
-
-/*   Lighthouse performance test  */
 
 test("Lighthouse audit (non-blocking)", async ({ browserName }) => {
   test.skip(browserName !== "chromium", "Lighthouse audit requires Chromium");
   test.setTimeout(120_000);
+
   const { playAudit } = await import("playwright-lighthouse");
-
-  const { default: ReportGenerator } =
-    (await import(
-      "lighthouse/report/generator/report-generator.js"
-    )) as unknown as { default: any };
-
+  const { ReportGenerator } = await import(
+    "lighthouse/report/generator/report-generator.js"
+  );
   const fs = await import("node:fs/promises");
-  const port = await getFreePort();
 
+  const port = await getFreePort();
   const browser = await chromium.launch({
     args: [`--remote-debugging-port=${port}`],
   });
 
-  const page = await browser.newPage();
-  const home = new HomePage(page);
-  await home.goto();
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const homePage = new HomePage(page);
+  await homePage.goto();
+  await page.waitForLoadState("networkidle");
 
   const auditResult = await playAudit({
     page,
     port,
-    thresholds: { performance: 0 }, // never fail the test
+    thresholds: { performance: 0 }, // never fail test
   });
 
-  const rawScore = auditResult.lhr.categories.performance?.score;
   const perfScore =
-    rawScore != null ? (rawScore * 100).toFixed(0) : "N/A";
-  console.log(`Lighthouse performance score: ${perfScore}`);
-
-  const reportHtml: string = ReportGenerator.generateReport(
-    auditResult.lhr,
-    "html"
-  );
+    auditResult.lhr.categories.performance?.score != null
+      ? (auditResult.lhr.categories.performance.score * 100).toFixed(0)
+      : "N/A";
 
   const reportPath = "lighthouse-report.html";
+  const reportHtml = ReportGenerator.generateReport(auditResult.lhr, "html");
   await fs.writeFile(reportPath, reportHtml);
-  console.log(`Lighthouse report saved to: ${reportPath}`);
+
+  console.log(`Lighthouse performance score: ${perfScore}`);
+  console.log(`Lighthouse report: file://${process.cwd()}/${reportPath}`);
 
   await browser.close();
 });

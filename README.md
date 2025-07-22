@@ -22,6 +22,10 @@ This repository contains end-to-end (E2E) tests for the [React documentation sit
 ├── .gitignore  
 ├── tsconfig.json # TypeScript configuration
 
+## Requirements
+
+- monimal node version 22.0.0
+
 ## Run Playwright tests
 
 Install dependencies:

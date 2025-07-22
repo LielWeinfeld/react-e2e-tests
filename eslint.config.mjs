@@ -5,6 +5,9 @@ import pluginReact from "eslint-plugin-react";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig([
+   {
+    ignores: ["playwright-report", "node_modules", "dist", "build"],
+  },
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     plugins: { js },
@@ -16,4 +19,12 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
+  {
+    settings: {
+      react: {
+        version: "detect"
+      }
+    }
+  }
 ]);
+
