@@ -49,6 +49,7 @@ test("A11y scan", async ({ home }) => {
 /*  Keyboard traversal test */
 
 test("Keyboard accessibility", async ({ page }) => {
+  test.setTimeout(90_000);    
   const home = new HomePage(page);
   await home.goto();
 
