@@ -56,7 +56,7 @@ test("Keyboard accessibility", async ({ page }) => {
   const forwardVisited = new Set();
 
   for (let i = 0; i < 60; i++) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press('Tab', { delay: 0 });
 
     const key = await page.evaluate(() => {
       const el = document.activeElement;
