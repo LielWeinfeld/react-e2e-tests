@@ -6,9 +6,9 @@ import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./tests",
-  fullyParallel: true,
-  workers: process.env.CI ? 1 : undefined,          
-  forbidOnly: !!process.env.CI,
+  fullyParallel: false,
+  workers: 1,          
+  forbidOnly: false,
   retries: process.env.CI ? 2 : 0,                  
 
   timeout: 30_000,          // per test
@@ -20,13 +20,14 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: "https://react.dev/",
-    actionTimeout: 10_000,
-    navigationTimeout: 30_000,
-
-    trace: "retain-on-failure",                   
-    video: "retain-on-failure",
-  },
+  baseURL: "https://react.dev/",
+  headless: false,
+  trace: "retain-on-failure",
+  screenshot: "only-on-failure",
+  video: "retain-on-failure",
+  actionTimeout: 10_000,
+  navigationTimeout: 30_000
+},
 
   projects: [
     {

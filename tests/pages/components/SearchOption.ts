@@ -8,11 +8,13 @@ export class SearchOption {
   /* Methods to open and close the Search UI */
 
   async openByButton() {
+    await this.page.waitForLoadState('domcontentloaded');
     await this.page.getByRole("button", { name: /search/i }).click();
     await this.input().waitFor();
   }
 
   async openByShortcut() {
+    await this.page.waitForLoadState('domcontentloaded');
     await this.page.keyboard.press(SHORTCUT);
     await this.input().waitFor();
   }

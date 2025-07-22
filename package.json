@@ -2,11 +2,19 @@
   "name": "frontend-e2e",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "type": "module",
+  "scripts": {
+    "prepare": "npx playwright install"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "acorn": "^8.15.0",
+    "acorn-import-attributes": "^1.9.5",
+    "acorn-jsx": "^5.3.2",
+    "agent-base": "^7.1.4",
+    "ajv": "^6.12.6",
     "@axe-core/playwright": "^4.10.2",
     "@eslint/js": "^9.31.0",
     "@playwright/test": "^1.54.1",
@@ -260,5 +268,8 @@
     "url": "https://github.com/LielWeinfeld/react-e2e-tests/issues"
   },
   "homepage": "https://github.com/LielWeinfeld/react-e2e-tests#readme",
-  "description": ""
+  "description": "",
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

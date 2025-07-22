@@ -11,7 +11,7 @@ test.describe("Test search functionality", () => {
     await home.search.expectSaved("custom hook");
   });
 
-  test("Keyboard-shortcut flow", async ({ home }) => {
+  test("Keyboard-shortcut search flow", async ({ home }) => {
     await home.search.openByShortcut();
     await home.search.searchAndOpenFirst("custom hook");
     await home.search.openByShortcut();

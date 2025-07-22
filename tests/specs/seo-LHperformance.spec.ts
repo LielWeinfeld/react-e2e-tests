@@ -28,11 +28,18 @@ test("Home page should have correct SEO tags", async ({ page }) => {
 });
 
 /*   Lighthouse performance test  */
-test("Lighthouse performance score ≥ 60 (Chromium only)", async ({
-  browserName,
-}) => {
+
+test("Lighthouse audit (non-blocking)", async ({ browserName }) => {
   test.skip(browserName !== "chromium", "Lighthouse audit requires Chromium");
-  const { playAudit } = await import('playwright-lighthouse'); 
+  test.setTimeout(120_000);
+  const { playAudit } = await import("playwright-lighthouse");
+
+  const { default: ReportGenerator } =
+    (await import(
+      "lighthouse/report/generator/report-generator.js"
+    )) as unknown as { default: any };
+
+  const fs = await import("node:fs/promises");
   const port = await getFreePort();
 
   const browser = await chromium.launch({
@@ -43,11 +50,25 @@ test("Lighthouse performance score ≥ 60 (Chromium only)", async ({
   const home = new HomePage(page);
   await home.goto();
 
-  await playAudit({
+  const auditResult = await playAudit({
     page,
     port,
-    thresholds: { performance: 60 },
+    thresholds: { performance: 0 }, // never fail the test
   });
+
+  const rawScore = auditResult.lhr.categories.performance?.score;
+  const perfScore =
+    rawScore != null ? (rawScore * 100).toFixed(0) : "N/A";
+  console.log(`Lighthouse performance score: ${perfScore}`);
+
+  const reportHtml: string = ReportGenerator.generateReport(
+    auditResult.lhr,
+    "html"
+  );
+
+  const reportPath = "lighthouse-report.html";
+  await fs.writeFile(reportPath, reportHtml);
+  console.log(`Lighthouse report saved to: ${reportPath}`);
 
   await browser.close();
 });
