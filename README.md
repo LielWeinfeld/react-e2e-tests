@@ -24,7 +24,7 @@ This repository contains end-to-end (E2E) tests for the [React documentation sit
 
 ## Requirements
 
-- monimal node version 22.0.0
+- Requires Node.js >= 22.0.0
 
 ## Run Playwright tests
 
