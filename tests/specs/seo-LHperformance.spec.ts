@@ -49,7 +49,7 @@ test("Lighthouse audit (non-blocking)", async ({ browserName }) => {
   const auditResult = await playAudit({
     page,
     port,
-    thresholds: { performance: 0 }, // never fail test
+    thresholds: { performance: 0 }, 
   });
 
   const perfScore =
